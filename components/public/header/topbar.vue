@@ -21,6 +21,9 @@ export default {
     Geo,
     User,
     NavBar
+  },
+  data: () => {
+    return {}
   }
 };
 </script>

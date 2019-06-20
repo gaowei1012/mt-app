@@ -1,7 +1,7 @@
 <template>
   <div class="m-user">
     <template v-if="user">
-      欢迎您, <span class="username">{{ user }}</span>
+      欢迎您, <span class="username">{{user}}</span>
       [<nuxt-link>退出</nuxt-link>]
     </template>
     <template v-else>
@@ -14,8 +14,10 @@
 
 <script>
 export default {
-  data: {
-    user: ''
+  data: () => {
+    return {
+      user: ''
+    }
   }
 }
 </script>

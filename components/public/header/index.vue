@@ -21,6 +21,11 @@ export default {
   components: {
     topBar,
     searchBar
+  },
+  data: () => {
+    return {
+      
+    }
   }
 };
 </script>
