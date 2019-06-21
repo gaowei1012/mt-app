@@ -24,11 +24,11 @@
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input type="email" v-model="ruleForm.email"></el-input>
+          <el-button type="mini" round @click="sendMsg">免费获取验证码</el-button>
+          <span class="status">{{statusMsg}}</span>
         </el-form-item>
         <el-form-item label="验证码" prop="code">
           <el-input v-model="ruleForm.code" maxlength="4"></el-input>
-          <el-button type="mini" round @click="sendMsg">免费获取验证码</el-button>
-          <span class="status">{{statusMsg}}</span>
         </el-form-item>
         <el-form-item label="密码" prop="pwd">
           <el-input type="password" v-model="ruleForm.pwd"></el-input>
