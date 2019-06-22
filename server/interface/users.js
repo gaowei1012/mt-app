@@ -1,10 +1,10 @@
-const Router = require('koa-router')
-const Redis = require('koa-redis')
-const nodeMailer = require('nodemailer')
-const User = require('../dbs/users')
-const Email = require('../dbs/config')
-const Passport = require('./utils/passport')
-const axios = require('./utils/axios')
+import Router from 'koa-router'
+import Redis from 'koa-redis'
+import nodeMailer from 'nodemailer'
+import User from '../dbs/models/users'
+import Email from '../dbs/config'
+import Passport from './utils/passport'
+import axios from './utils/axios'
 
 let router = new Router({
   prefix: '/users'
@@ -130,9 +130,10 @@ router.post('/verify', async (ctx, next) => {
 
   let transporter = nodeMailer.createTransport({
     host: Email.smtp.host,
-    port: 587,
-    secure: false,
-    suth: {
+    port: 465,
+    service: 'qq',
+    secure: true,
+    auth: {
       user: Email.smtp.user,
       pass: Email.smtp.pass
     }
@@ -146,11 +147,11 @@ router.post('/verify', async (ctx, next) => {
   let mailOptions = {
     from: `"认证邮件" <${Email.smtp.user}>`,
     to: ko.email,
-    subject: '《慕课网高仿美团网全栈实战》注册码',
-    html: `您在《慕课网高仿美团网全栈实战》课程中注册，您的邀请码是:${ko.code}`
+    subject: 'node应用注册码',
+    html: `您在《体验node》项目中注册，您的邀请码是:${ko.code}`
   }
   await transporter.sendMail(mailOptions, (error, info) => {
-    if (error) return console.log('获取邮箱验证失败'+error)
+    if (error) return console.log('获取邮箱验证失败'+ error)
     else Store.hmset(`nodemail:${ko.user}`, `code:${ko.code}`, `emial:${ko.email}`)
   })
   ctx.body = {

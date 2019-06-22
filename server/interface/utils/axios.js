@@ -1,4 +1,4 @@
-const axios = require('axios')
+import axios from 'axios'
 
 const instance = axios.create({
   baseUrl: `http://${process.env.HOST || 'lcoalhost'}:${process.env.PORT || 3000}`,
@@ -6,4 +6,4 @@ const instance = axios.create({
   headers: { }
 })
 
-module.exports = instance
+export default instance

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 const Schmea = mongoose.Schema
 
 const UserSchmea = new Schmea({
@@ -17,4 +17,4 @@ const UserSchmea = new Schmea({
   }
 })
 
-module.exports = mongoose.model('User', UserSchmea)
+export default mongoose.model('User', UserSchmea)

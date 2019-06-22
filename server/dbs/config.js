@@ -1,4 +1,4 @@
-module.exports =  {
+export default {
   dbs: 'mongodb://localhost:27017/mt',
   redis: {
     get host() {
@@ -9,6 +9,13 @@ module.exports =  {
     }
   },
   smtp: {
+    get appkey() {
+      return '61c9204179403d15085b17384b441dd8'
+    },
+    get appid() {
+      return '1400222344'
+    },
+
     get host() {
       return 'smtp.qq.com'
     },

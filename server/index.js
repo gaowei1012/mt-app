@@ -1,14 +1,14 @@
-const Koa = require('koa')
-const consola = require('consola')
-const { Nuxt, Builder } = require('nuxt')
-const koaBodyParser = require('koa-bodyparser')
-const mongoose = require('mongoose')
-const json = require('koa-json')
-const session = require('koa-generic-session')
-const Redis = require('koa-redis')
-const users = require('./interface/users')
-const dbConfig = require('./dbs/config')
-const passport = require('./interface/utils/passport')
+import Koa from 'koa'
+import consola from 'consola'
+import { Nuxt, Builder } from 'nuxt'
+import koaBodyParser from 'koa-bodyparser'
+import mongoose from 'mongoose'
+import json from 'koa-json'
+import session from 'koa-generic-session'
+import Redis from 'koa-redis'
+import users from './interface/users'
+import dbConfig from './dbs/config'
+import passport from './interface/utils/passport'
 
 const app = new Koa()
 
