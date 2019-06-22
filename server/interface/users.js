@@ -13,7 +13,7 @@ let router = new Router({
 // redis store
 let Store = new Redis().client
 
-router.post('/singup', async (ctx) => {
+router.post('/singup', async (ctx, next) => {
   let {
     username,
     password,
@@ -21,9 +21,11 @@ router.post('/singup', async (ctx) => {
     email
   } = ctx.request.body
 
+  // 验证码校验
   if (code) {
-    const saveCode = await Store().hget(`nodemail${username}`, 'code')
-    const saveExpire = await Store().hget(`nodemail${username}`, 'expire')
+    // 取出redis数据中的存的info
+    const saveCode = await Store.hget(`nodemail${username}`, 'code')
+    const saveExpire = await Store.hget(`nodemail${username}`, 'expire')
     if (code === saveCode) {
       if (new Date().getTime() - saveExpire > 0) {
         ctx.body = {
@@ -44,6 +46,7 @@ router.post('/singup', async (ctx) => {
       msg: '请填写验证码'
     }
   }
+  // 查询当前用户是否注册
   let user = await User.find({username})
   if (user.lenght) {
     ctx.body = {
@@ -52,8 +55,10 @@ router.post('/singup', async (ctx) => {
     }
     return
   }
+  // 写入数据库
   let newUser = await User.create({username, password, email})
   if (newUser) {
+    // 登录
     let res = await axios.post('/users/signin', {
       username, password
     })
@@ -75,12 +80,14 @@ router.post('/singup', async (ctx) => {
       msg: '注册失败'
     }
   }
+
+  await next()
 })
 
 
 router.post('/signin', async (ctx, next) => {
   return Passport.authenticate('local', function(err, user, info, status) {
-    if(err) {
+    if (err) {
       ctx.body = {
         code: -1,
         msg: err
@@ -89,67 +96,69 @@ router.post('/signin', async (ctx, next) => {
       if (user) {
         ctx.body = {
           code: 0,
-          msg: '登录成功'
+          msg: '登陆成功',
+          user
         }
         return ctx.login(user)
       } else {
         ctx.body = {
-          code:0,
+          code: 1,
           msg: info
         }
       }
-    } 
+    }
   })(ctx, next)
 })
 
+// 验证码校验
+/**
+ * 邮箱验证
+ * 拿到当前用户 在redis中查询 是否有当前用户 进行比对
+ * 发送您验证邮箱，使用 nodemailer 
+ * 首先设置发送前设置 再者就是发送给谁
+ */
 router.post('/verify', async (ctx, next) => {
   let username = ctx.request.body.username
-  const saveExpire = await Store().hget(`nodemail${username}`, 'expire')
+  const saveExpire = await Store.hget(`nodemail:${username}`, 'expire')
   if (saveExpire && new Date().getTime() - saveExpire < 0) {
     ctx.body = {
       code: -1,
-      msg: '验证过于频繁，请在一分钟后再试!'
+      msg: '验证请求过于频繁，1分钟内1次'
     }
     return false
   }
-  // 发送的设置
+
   let transporter = nodeMailer.createTransport({
     host: Email.smtp.host,
     port: 587,
     secure: false,
-    auth: {
+    suth: {
       user: Email.smtp.user,
       pass: Email.smtp.pass
     }
   })
-  // 发送的对象
   let ko = {
     code: Email.smtp.code(),
     expire: Email.smtp.expire(),
     email: ctx.request.body.email,
-    user: ctx.request.body.user
+    user: ctx.request.body.username
   }
-
   let mailOptions = {
-    form: `"认证邮件" <${Email.smtp.user}> `,
+    from: `"认证邮件" <${Email.smtp.user}>`,
     to: ko.email,
-    subject: '美团用户注册验证码',
-    html: `您的验证码是:${ko.code}`
+    subject: '《慕课网高仿美团网全栈实战》注册码',
+    html: `您在《慕课网高仿美团网全栈实战》课程中注册，您的邀请码是:${ko.code}`
   }
-
-  // 开始发送验证邮件
-  await transporter.sendMail(mailOptions, (err, info) => {
-    if (err) {
-      return console.log(err)
-    } else {
-      Store.hmset(`nodemail:${ko.user}`, 'code', ko.code, 'expire', ko.expire, 'email', ko.email)
-    }
+  await transporter.sendMail(mailOptions, (error, info) => {
+    if (error) return console.log('获取邮箱验证失败'+error)
+    else Store.hmset(`nodemail:${ko.user}`, `code:${ko.code}`, `emial:${ko.email}`)
   })
   ctx.body = {
     code: 0,
-    msg: '邮件已发送，有限一分钟'
+    msg: '验证码已发送，可能会有延时，有效期1分钟'
   }
 })
+
 
 router.get('/exit', async (ctx, next) => {
   await ctx.logout()

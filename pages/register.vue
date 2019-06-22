@@ -93,7 +93,45 @@ export default {
   },
   layout: "blank",
   methods: {
-    sendMsg: function() {},
+    sendMsg: function() {
+      // 发送邮箱验证码
+      // 校验规则 调用接口 发送验证码
+      const self = this;
+      let namePass
+      let emailPass
+      if (self.timered) {
+        return false;
+      }
+      this.$refs['ruleForm'].validateField('name', (valid) => {
+         namePass = valid
+      })
+      self.statusMsg = ''
+      if (namePass){
+        return false;
+      } 
+      this.$refs['ruleForm'].validateField('email', (valid) => {
+        emailPass = valid
+      })
+      if (!namePass && !emailPass) {
+        self.$axios.post('/users/verify', {
+          username: encodeURIComponent(self.ruleForm.name),
+          email: self.ruleForm.email
+        }).then(({status, data}) => {
+          if (status === 200 && data && data.code === 0) {
+            let count = 60;
+            self.statusMsg = `验证码已发送${count--}`
+            self.timered = setInterval(() => {
+              self.statusMsg = `验证码已发送${count--}`
+              if (count===0) {
+                clearInterval(self.timered)
+              }
+            }, 1000)
+          } else {
+            self.statusMsg = data.msg
+          }
+        })
+      } 
+    },
     register: function() {}
   }
 };
