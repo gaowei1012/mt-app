@@ -137,7 +137,7 @@ export default {
       this.$refs['ruleForm'].validate((valid) => {
         console.log('valid'+ valid)
         if (valid) {
-          self.$axios.post('/users/singup', {
+          self.$axios.post('/users/signup', {
             username: window.encodeURIComponent(self.ruleForm.name),
             password: cryptoJs.MD5(self.ruleForm.pwd).toString(),
             email: self.ruleForm.email,

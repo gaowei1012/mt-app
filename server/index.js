@@ -2,12 +2,11 @@ import Koa from 'koa'
 import consola from 'consola'
 import { Nuxt, Builder } from 'nuxt'
 import koaBodyParser from 'koa-bodyparser'
-import mongoose from 'mongoose'
 import json from 'koa-json'
 import session from 'koa-generic-session'
 import Redis from 'koa-redis'
 import users from './interface/users'
-import dbConfig from './dbs/config'
+import { initSchema, connect } from './dbs/init'
 import passport from './interface/utils/passport'
 
 const app = new Koa()
@@ -18,20 +17,18 @@ config.dev = !(app.env === 'production')
 
 app.keys = ['mt', 'keyskeys']
 app.proxy = true
-app.use(session({
-  key: 'mt',
-  prefix: 'mt:uid',
-  store: new Redis()
-}))
+app.use(session({key: 'mt', prefix: 'mt:uid', store: new Redis()}))
 app.use(koaBodyParser({
-  extendTypes: ['json', 'form', 'text']
+  extendTypes:['json','form','text']
 }))
 app.use(json())
 
-// connection mongodb
-mongoose.connect(dbConfig.dbs, {
-  useNewUrlParser: true
-})
+// 数据库连接
+;(async () => {
+  await connect(),
+  initSchema()
+})()
+
 app.use(passport.initialize())
 app.use(passport.session())
 

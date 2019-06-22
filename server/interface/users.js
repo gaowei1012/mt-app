@@ -13,33 +13,24 @@ let router = new Router({
 // redis store
 let Store = new Redis().client
 
-router.post('/singup', async (ctx, next) => {
-  let {
-    username,
-    password,
-    code,
-    email
-  } = ctx.request.body
+router.post('/signup', async (ctx) => {
+  const {username, password, email, code} = ctx.request.body;
 
-  console.log(ctx.request.body)
-
-  // 验证码校验
   if (code) {
-    // 取出redis数据中的存的info
-    const saveCode = await Store.hget(`nodemail${username}`, 'code')
-    const saveExpire = await Store.hget(`nodemail${username}`, 'expire')
+    const saveCode = await Store.hget(`nodemail:${username}`, 'code')
+    const saveExpire = await Store.hget(`nodemail:${username}`, 'expire')
     if (code === saveCode) {
       if (new Date().getTime() - saveExpire > 0) {
         ctx.body = {
           code: -1,
-          msg: '验证码已过期，请重新获取'
+          msg: '验证码已过期，请重新尝试'
         }
         return false
       }
     } else {
       ctx.body = {
         code: -1,
-        msg: '请填写正确验证码'
+        msg: '请填写正确的验证码'
       }
     }
   } else {
@@ -48,22 +39,17 @@ router.post('/singup', async (ctx, next) => {
       msg: '请填写验证码'
     }
   }
-  // 查询当前用户是否注册
   let user = await User.find({username})
-  if (user.lenght) {
+  if (user.length) {
     ctx.body = {
       code: -1,
-      msg: '当前用户已注册'
+      msg: '已被注册'
     }
     return
   }
-  // 写入数据库
-  let newUser = await User.create({username, password, email})
-  if (newUser) {
-    // 登录
-    let res = await axios.post('/users/signin', {
-      username, password
-    })
+  let nuser = await User.create({username, password, email})
+  if (nuser) {
+    let res = await axios.post('/users/signin', {username, password})
     if (res.data && res.data.code === 0) {
       ctx.body = {
         code: 0,
@@ -82,8 +68,6 @@ router.post('/singup', async (ctx, next) => {
       msg: '注册失败'
     }
   }
-
-  await next()
 })
 
 
