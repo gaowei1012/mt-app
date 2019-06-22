@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import { traverse } from '@babel/types';
+import cryptoJs from 'crypto-js'
 export default {
   data() {
     return {
@@ -132,7 +132,34 @@ export default {
         })
       } 
     },
-    register: function() {}
+    register: function() {
+      const self = this
+      this.$refs['ruleForm'].validate((valid) => {
+        console.log('valid'+ valid)
+        if (valid) {
+          self.$axios.post('/users/singup', {
+            username: window.encodeURIComponent(self.ruleForm.name),
+            password: cryptoJs.MD5(self.ruleForm.pwd).toString(),
+            email: self.ruleForm.email,
+            code: self.ruleForm.code
+          }).then(({status, data}) => {
+            if (status === 200) {
+              if (data && data.code === 0) {
+                location.href = '/login'
+              } else {
+                self.error = data.msg
+              }
+            } else {
+              self.error = `服务端出错,状态码是： ${status}`
+            }
+          })
+          setTimeout(function() {
+            self.error = ''
+          }, 1500)
+        }
+      })
+
+    }
   }
 };
 </script>

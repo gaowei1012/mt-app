@@ -21,6 +21,8 @@ router.post('/singup', async (ctx, next) => {
     email
   } = ctx.request.body
 
+  console.log(ctx.request.body)
+
   // 验证码校验
   if (code) {
     // 取出redis数据中的存的info
