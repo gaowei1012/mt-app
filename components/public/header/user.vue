@@ -18,6 +18,12 @@ export default {
     return {
       user: ''
     }
+  },
+  methods: async () => {
+    const {status, data: {user}} = await this.$axios.get('/users/getUser')
+    if(status === 200) {
+      location.href = '/'
+    }
   }
 }
 </script>
