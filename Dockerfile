@@ -6,8 +6,8 @@ RUN apt-get update \
     && apt-get install -y nginx
 
 # 安装pm2
-RUN apt-get update \
-    && apt-get install -y pm2
+# RUN apt-get update \
+#     && apt-get install -y pm2
 
 # 指定目录
 WORKDIR /app

@@ -58,7 +58,7 @@ export default {
         if (valid) {
           self.$axios.post('/users/signin', {
             username: window.encodeURIComponent(self.ruleForm.username),
-            password: Crypto.MD5(self.ruleForm.password)
+            password: CryptoJS.MD5(self.ruleForm.password).toString()
           })
           .then(({status, data}) => {
             if (status === 200) {
@@ -66,10 +66,10 @@ export default {
                 // 登录成功，跳转到首页
                 location.href = '/'
                 // 将用户信息存在loaclstage中
-                localStorage.setItem('username', username)
+                // localStorage.setItem('username', username)
               } else {
                 // 登录失败
-                console.log(`登录失败，您的用户名或密码错误!`)
+                self.error=data.msg
               }
             } else {
               console.log(`登录失败`)

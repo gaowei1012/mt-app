@@ -135,7 +135,7 @@ export default {
     register: function() {
       const self = this
       this.$refs['ruleForm'].validate((valid) => {
-        console.log('valid'+ valid)
+        //console.log('valid'+ valid)
         if (valid) {
           self.$axios.post('/users/signup', {
             username: window.encodeURIComponent(self.ruleForm.name),
