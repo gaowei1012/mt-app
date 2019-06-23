@@ -23,9 +23,8 @@ EXPOSE 80
 # 将dist目录下的文件移动到var/www/html 目录下
 # 删除/app目录
 RUN npm install \
-    && npm run build \
-    && npm start \
-    && cp -r ./nuxt/* /var/www/html \
+    && npm run generate \
+    && cp -r ./dist /var/www/html \
     && rm -rf /app
 
 # 以前台的方式启动 nginx

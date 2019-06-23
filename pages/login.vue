@@ -40,7 +40,7 @@
 </template>
 
 <script>
-// import CryptoJS from 'crypto-js'
+import CryptoJS from 'crypto-js'
 export default {
   data: () => {
     return {
@@ -53,7 +53,30 @@ export default {
   layout: 'blank',
   methods: {
     login: function () {
-      
+      const self = this;
+      this.$refs['ruleForm'].validate((valid) => {
+        if (valid) {
+          self.$axios.post('/users/signin', {
+            username: window.encodeURIComponent(self.ruleForm.username),
+            password: Crypto.MD5(self.ruleForm.password)
+          })
+          .then(({status, data}) => {
+            if (status === 200) {
+              if (data && data.code === 0) {
+                // 登录成功，跳转到首页
+                location.href = '/'
+                // 将用户信息存在loaclstage中
+                localStorage.setItem('username', username)
+              } else {
+                // 登录失败
+                console.log(`登录失败，您的用户名或密码错误!`)
+              }
+            } else {
+              console.log(`登录失败`)
+            }
+          })
+        }
+      })
     }
   }
 }
