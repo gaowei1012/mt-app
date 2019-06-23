@@ -5,11 +5,13 @@ import koaBodyParser from 'koa-bodyparser'
 import json from 'koa-json'
 import session from 'koa-generic-session'
 import Redis from 'koa-redis'
-import users from './interface/users'
 import { initSchema, connect } from './dbs/init'
 import passport from './interface/utils/passport'
 
 const app = new Koa()
+
+import users from './interface/users'
+import geo from './interface/geo'
 
 // Import and Set Nuxt.js options
 let config = require('../nuxt.config.js')
@@ -50,6 +52,7 @@ async function start() {
   }
 
   app.use(users.routes()).use(users.allowedMethods())
+  app.use(geo.routes()).use(geo.allowedMethods())
 
   app.use(ctx => {
     ctx.status = 200
